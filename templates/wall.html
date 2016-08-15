@@ -1,0 +1,75 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" 
+	href="{{  url_for('static', filename='stylesheet.css')  }}">
+	<!-- 	<link rel="stylesheet" type="text/css" href="static/stylesheet.css"> -->
+	<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+
+				$('.comments').hide();
+				$('#wall_flash').fadeOut(5000);
+
+				$('.messages').click(function() {
+					// $(window).scrollTo(this);					
+					$(this).next().toggle();
+					// $(this).next().find('textarea').focus();
+					console.log('clicked')
+
+			})
+		});		
+	</script>
+	<title>CodingDojo Wall</title>
+</head>
+<body id="body_wall">
+	<div id="header">
+		<h2>CodingDojo Wall</h2>
+		<p>Welcome {{user['first_name']}}</p>
+		<a href="/logout">Log Out</a>
+	</div>
+	<div id="wall_flash">
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<p class="{{messages[0]}}">{{messages[1]}}</p>
+			{% endif %}
+		{% endwith %}
+	</div>
+
+	<div id="main">
+		<form action="/wall/submit_message" method="POST">
+			<h3>Post a message</h3>
+			<textarea name="message"></textarea>
+			<input class="lightblue button" type="submit" name="post_message" value="Post a message">
+		</form>
+		<br><br><br>
+		{% for message in messages %}
+			<p style="position: relative">	<b>{{message['name']}} - {{message['message_date']}}</b>
+				{% if message['user_id'] == session['user_id'] %}
+					<a href="/wall/delete_message/{{message['message_id']}}"><button class="delete_message">Delete post</button></a>
+				{% endif %}
+			</p>
+			<p class="messages">{{message['message']}}</p>
+			<div class="comments">
+				{% for comment in comments %}
+					{% if comment['message_id'] == message['message_id'] %}
+						<br>					
+						<p style="position: relative">	<b>{{comment['name']}} - {{comment['comment_date']}}</b>
+							{% if comment['user_id'] == session['user_id'] %}
+								<a class="delete_comment" href="/wall/delete_comment/{{comment['comment_id']}}">Delete comment</a>
+							{% endif %}
+						</p>
+						<p>{{comment['comment']}}</p>
+					{% endif %}
+				{% endfor %}
+				<br><br>
+				<h4>Post a comment</h4><br>
+				<form class="comment_form" action="/wall/submit_comment/{{message['message_id']}}" method="POST">
+					<textarea name="comment" autofocus="autofocus"></textarea>
+					<input class="lightgreen button" type="submit" name="post_comment" value="Post a comment">		
+				</form>
+			</div>
+		{% endfor %}
+	</div>
+</body>
+</html>
