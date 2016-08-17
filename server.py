@@ -205,8 +205,11 @@ def submit_comment(message_id = None):
 
 @app.route('/wall/delete_message/<message_id>')
 def delete_message (message_id):
-	# Delete message:
 	data = 	{'message_id': message_id}
+	# Delete comments first:	
+	query = "DELETE FROM comments WHERE comments.message_id = :message_id"
+	mysql.query_db(query, data)
+	# Then delete messages:
 	query = "DELETE FROM messages WHERE messages.id = :message_id"
 	mysql.query_db(query, data)
 
